@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/menu_main_event"
+        android:title="@string/event"
+        android:icon="@drawable/menu_event_icon"
+        android:titleCondensed="@string/app_name"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/menu_main_chat"
+        android:title="@string/chat"
+        android:icon="@drawable/menu_chat_icon"
+        app:showAsAction="ifRoom"/>
+    <item android:id="@+id/menu_main_syllabus"
+        android:title="@string/syllabus"
+        android:icon="@drawable/menu_syllabus_icon"
+        app:showAsAction="ifRoom"/>
+</menu>

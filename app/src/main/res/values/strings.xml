@@ -1,3 +1,12 @@
 <resources>
     <string name="app_name">BMSCE</string>
+    <string name="syllabus">Syllabus</string>
+    <string name="event">Event</string>
+    <string name="chat">Chat</string>
+
+    //SYLLABUS
+    <string name="portion">Portion</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="togglebutton">ToggleButton</string>
 </resources>
