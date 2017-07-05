@@ -6,7 +6,54 @@
 
     //SYLLABUS
     <string name="portion">Portion</string>
+    <string name="my_courses">My Courses</string>
+    <string name="all_courses">All Courses</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="togglebutton">ToggleButton</string>
+    <string name="credits">Credits %d</string>
+
+    <string-array name="branch">
+        <item>--Select Branch--</item>
+        <item>AT-Architecture</item>
+        <item>BT-Biotechnology</item>
+        <item>CH-Chemical Engg</item>
+        <item>CS-Computer Science Engg</item>
+        <item>CV-Civil Engg</item>
+        <item>EC-Electronics &amp; Communication Engg</item>
+        <item>EE-Electrical &amp; Electronics Engg</item>
+        <item>EI-Electronics &amp; Instrumentation Engg</item>
+        <item>IM-Industrial Engg &amp; Management</item>
+        <item>IS-Information Science &amp; Engg</item>
+        <item>ME-Mechanical Engg</item>
+        <item>ML-Medical Electronics</item>
+        <item>TE-Telecommunication Engg</item>
+    </string-array>
+    <string-array name="semesters_for_majority">
+        <item>--Select Semester--</item>
+        <item>1st sem</item>
+        <item>2nd sem</item>
+        <item>3rd sem</item>
+        <item>4th sem</item>
+        <item>5th sem</item>
+        <item>6th sem</item>
+        <item>7th sem</item>
+        <item>8th sem</item>
+    </string-array>
+    <string-array name="semesters_for_architecture">
+        <item>--Select Semester--</item>
+        <item>1st sem</item>
+        <item>2nd sem</item>
+        <item>3rd sem</item>
+        <item>4th sem</item>
+        <item>5th sem</item>
+        <item>6th sem</item>
+        <item>7th sem</item>
+        <item>8th sem</item>
+        <item>9th sem</item>
+        <item>Xth sem</item>
+    </string-array>
+
+
+    <string name="btn_plus_description">Plus Button to add portions</string>
 </resources>
