@@ -2,22 +2,23 @@ package com.projects.psps.bmsce;
 
 
 import android.content.Context;
-import android.graphics.drawable.Drawable;
-import android.nfc.Tag;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.LinearLayoutManager;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AbsListView;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.CompoundButton;
 import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.Toast;
 import android.widget.ToggleButton;
 
 import com.google.firebase.database.DataSnapshot;
@@ -37,17 +38,18 @@ import java.util.Objects;
 /**
  * A simple {@link Fragment} subclass.
  */
-public class SyllabusFragment extends Fragment implements View.OnClickListener,CompoundButton.OnCheckedChangeListener,AdapterView.OnItemSelectedListener{
+public class SyllabusFragment extends Fragment implements View.OnClickListener,CompoundButton.OnCheckedChangeListener,AdapterView.OnItemClickListener,AdapterView.OnItemSelectedListener{
 
-    ListView portionList,myCourseList,respctiveCourseList;
+    RecyclerView portionList,myCourseList;
+    ListView respctiveCourseList;
     Spinner branchSpn,semSpn;
     ImageButton addPortionImgBtn,addToMyCourseImgBtn;
     ExpandableLayout portionExpandCachappa,myCourseExpandCachappa,allCourseExpandCachappa;
     ArrayAdapter<String> spinnerAdapter;
     String lastSelectedBranch="--";
     ArrayList<String> semesters;
-    Context context;
-    DatabaseReference dataBaseRef;
+    final static String TAG="SYLLABUS_FRAGMENT";
+    DatabaseReference syllabusReference;
 
     public SyllabusFragment() {
         // Required empty public constructor
@@ -58,12 +60,11 @@ public class SyllabusFragment extends Fragment implements View.OnClickListener,C
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        context=inflater.getContext();
-        View rootView=inflater.inflate(R.layout.fragment_syllabus, container, false);
+        View rootView=inflater.inflate(R.layout.fragment_syllabus2, container, false);
         //Initailize widgets and set onClick Listener
-        portionList=(ListView)rootView.findViewById(R.id.list_of_portion);
-        myCourseList=(ListView)rootView.findViewById(R.id.list_of_my_course);
-        respctiveCourseList=(ListView)rootView.findViewById(R.id.list_respective_course);
+        portionList=(RecyclerView) rootView.findViewById(R.id.list_of_portion);
+        myCourseList=(RecyclerView) rootView.findViewById(R.id.list_of_my_course);
+        respctiveCourseList=(ListView) rootView.findViewById(R.id.list_respective_course);
         branchSpn=(Spinner) rootView.findViewById(R.id.spn_branch);
         semSpn=(Spinner) rootView.findViewById(R.id.spn_sem);
         portionExpandCachappa=(ExpandableLayout)rootView.findViewById(R.id.cachappa_expand_portion);
@@ -82,6 +83,7 @@ public class SyllabusFragment extends Fragment implements View.OnClickListener,C
         expandALlCourseToggle.setOnCheckedChangeListener(this);
         branchSpn.setOnItemSelectedListener(this);
         semSpn.setOnItemSelectedListener(this);
+        respctiveCourseList.setOnItemClickListener(this);
         // Inflate the layout for this fragment
         return rootView;
     }
@@ -90,7 +92,7 @@ public class SyllabusFragment extends Fragment implements View.OnClickListener,C
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
         semesters=new ArrayList<>(Arrays.asList(getResources().getStringArray(R.array.semesters_for_majority)));
-        spinnerAdapter=new ArrayAdapter<>(context,android.R.layout.simple_list_item_1,semesters);
+        spinnerAdapter=new ArrayAdapter<>(getContext(),android.R.layout.simple_list_item_1,semesters);
         semSpn.setAdapter(spinnerAdapter);
     }
 
@@ -131,6 +133,7 @@ public class SyllabusFragment extends Fragment implements View.OnClickListener,C
             case R.id.toggle_btn_expand_all_courses:
                 if(isChecked){
                     allCourseExpandCachappa.expand();
+                    syllabusReference=FirebaseDatabase.getInstance().getReference("/branch_sem_courses");
                 }
                 else {
                     allCourseExpandCachappa.collapse();
@@ -141,40 +144,46 @@ public class SyllabusFragment extends Fragment implements View.OnClickListener,C
 
     @Override
     public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
-        String branch=String.valueOf(branchSpn.getSelectedItem()).substring(0,2);
-        String sem=String.valueOf(semSpn.getSelectedItem()).substring(0,1);
-
-        if(parent.getId()==R.id.spn_branch) {
-            if (branch.equals("AT") && !lastSelectedBranch.equals("AT")) {        //Add 9th and 10th smesters to the list
-                semesters.add("9th sem");
-                semesters.add("Xth sem");
-                spinnerAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, semesters);
-                semSpn.setAdapter(spinnerAdapter);
-                if(!sem.equals("-")){
-                    semSpn.setSelection(Integer.parseInt(sem));
+        switch(parent.getId()){
+            case R.id.spn_branch:
+                String branch=String.valueOf(branchSpn.getSelectedItem()).substring(0,2);
+                String sem=String.valueOf(semSpn.getSelectedItem()).substring(0,1);
+                if (branch.equals("AT") && !lastSelectedBranch.equals("AT")) {        //Add 9th and 10th smesters to the list
+                    semesters.add("9th sem");
+                    semesters.add("Xth sem");
+                    spinnerAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, semesters);
+                    semSpn.setAdapter(spinnerAdapter);
+                    if(!sem.equals("-")){
+                        semSpn.setSelection(Integer.parseInt(sem));
+                    }
+                } else if (!branch.equals("AT") && lastSelectedBranch.equals("AT")) {           //Remove 9th and 10th semesters from list
+                    semesters.remove(10);
+                    semesters.remove(9);
+                    spinnerAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, semesters);
+                    semSpn.setAdapter(spinnerAdapter);
+                    if(!sem.equals("9") && !sem.equals("X") && !sem.equals("-")){
+                        semSpn.setSelection(Integer.parseInt(sem));
+                    }
                 }
-            } else if (!branch.equals("AT") && lastSelectedBranch.equals("AT")) {           //Remove 9th and 10th semesters from list
-                semesters.remove(10);
-                semesters.remove(9);
-                spinnerAdapter = new ArrayAdapter<>(context, android.R.layout.simple_list_item_1, semesters);
-                semSpn.setAdapter(spinnerAdapter);
-                if(!sem.equals("9") && !sem.equals("X") && !sem.equals("-")){
-                    semSpn.setSelection(Integer.parseInt(sem));
+                lastSelectedBranch=branch;
+                if(Objects.equals(branch, "--") || Objects.equals(sem,"-")){
+                    respctiveCourseList.setAdapter(null);
+                    return;
                 }
-            }
-            lastSelectedBranch=branch;
+                FirebaseDatabase.getInstance().getReference("/branch_sem_courses/"+branch+sem).addListenerForSingleValueEvent(courseReader);
+                break;
+            case R.id.spn_sem:
+                String branch1 = String.valueOf(branchSpn.getSelectedItem()).substring(0, 2);
+                String sem1 = String.valueOf(semSpn.getSelectedItem()).substring(0, 1);
+                if(Objects.equals(branch1, "--") || Objects.equals(sem1,"-")){
+                    respctiveCourseList.setAdapter(null);
+                    return;
+                }
+                syllabusReference.child(branch1+sem1).addListenerForSingleValueEvent(courseReader);
+                break;
+
+
         }
-
-        if(Objects.equals(branch, "--") || Objects.equals(sem,"-")){
-            respctiveCourseList.setAdapter(null);
-            return;
-        }
-
-
-        dataBaseRef=FirebaseDatabase.getInstance().getReference("/branch_sem_courses/"+branch+sem);
-        dataBaseRef.addListenerForSingleValueEvent(courseReader);
-
-
     }
 
     @Override
@@ -196,7 +205,7 @@ public class SyllabusFragment extends Fragment implements View.OnClickListener,C
                 coursesList.add(courses[i]);
             }
 
-            respctiveCourseList.setAdapter(new CourseAdapter(context,coursesList));
+            respctiveCourseList.setAdapter(new CourseAdapter(getContext(),coursesList));
         }
 
         @Override
@@ -204,5 +213,20 @@ public class SyllabusFragment extends Fragment implements View.OnClickListener,C
 
         }
     };
+
+    @Override
+    public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+        switch (parent.getId()){
+            case R.id.list_respective_course:
+                final FbCourse course= (FbCourse) respctiveCourseList.getItemAtPosition(position);
+                Log.d(TAG,course.getCourseName());
+                Intent intent=new Intent(getContext(),SyllabusViewActivity.class);
+                intent.putExtra("course",course);
+                startActivity(intent);
+
+        }
+    }
+
+
 }
 

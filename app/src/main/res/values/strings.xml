@@ -3,6 +3,9 @@
     <string name="syllabus">Syllabus</string>
     <string name="event">Event</string>
     <string name="chat">Chat</string>
+    <string name="info">Information</string>
+    <string name="add_course">Add to My Course</string>
+    <string name="add_portion">Add a Portion</string>
 
     //SYLLABUS
     <string name="portion">Portion</string>

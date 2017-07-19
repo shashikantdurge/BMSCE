@@ -1,10 +1,12 @@
 package com.projects.psps.bmsce.firebase;
 
+import java.io.Serializable;
+
 /**
  * Created by vasan on 29-06-2017.
  */
 
-public class FbCourse {
+public class FbCourse implements Serializable{
     private String courseName;
     private String shortName;
     private String courseCode;
