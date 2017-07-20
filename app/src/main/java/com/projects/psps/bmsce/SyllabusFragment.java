@@ -60,10 +60,10 @@ public class SyllabusFragment extends Fragment implements View.OnClickListener,C
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
 
-        View rootView=inflater.inflate(R.layout.fragment_syllabus2, container, false);
+        View rootView=inflater.inflate(R.layout.fragment_syllabus, container, false);
         //Initailize widgets and set onClick Listener
-        portionList=(RecyclerView) rootView.findViewById(R.id.list_of_portion);
-        myCourseList=(RecyclerView) rootView.findViewById(R.id.list_of_my_course);
+//        portionList=(RecyclerView) rootView.findViewById(R.id.list_of_portion);
+//        myCourseList=(RecyclerView) rootView.findViewById(R.id.list_of_my_course);
         respctiveCourseList=(ListView) rootView.findViewById(R.id.list_respective_course);
         branchSpn=(Spinner) rootView.findViewById(R.id.spn_branch);
         semSpn=(Spinner) rootView.findViewById(R.id.spn_sem);

@@ -153,7 +153,7 @@
             <ListView
                 android:id="@+id/list_respective_course"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content" />
+                android:layout_height="100dp" />
 
         </LinearLayout>
     </net.cachapa.expandablelayout.ExpandableLayout>

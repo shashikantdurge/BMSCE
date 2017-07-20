@@ -31,6 +31,7 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_main_chat:
+                bottomNavigationView.setVisibility(View.INVISIBLE);
                 //change the icon
                 break;
             case R.id.menu_main_event:
