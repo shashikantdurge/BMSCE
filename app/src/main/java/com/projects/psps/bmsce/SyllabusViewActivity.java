@@ -1,5 +1,6 @@
 package com.projects.psps.bmsce;
 
+import android.content.Intent;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.support.annotation.NonNull;
@@ -31,7 +32,7 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.IOException;
 
-public class SyllabusViewActivity extends AppCompatActivity {
+public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.OnMenuItemClickListener{
 
     final static  String TAG="SYLLABUS_MAIN_ACTIVITY";
     TextView syllabusTv;
@@ -39,36 +40,44 @@ public class SyllabusViewActivity extends AppCompatActivity {
     ProgressBar progressBar;
     File file;
     ExpandableLayout courseInfoExpand;
+    final static String IS_COURSE_ONLINE="iscourseonine";
+    boolean isCourseOnline =true;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_syllabus_main);
-        FbCourse course= (FbCourse) getIntent().getSerializableExtra("course");
+        Intent intent=getIntent();
+        FbCourse course= (FbCourse) intent.getSerializableExtra("course");
+        isCourseOnline =intent.getBooleanExtra(IS_COURSE_ONLINE,true);
         Log.d(TAG,course.getCourseName());
         syllabusTv=(TextView)findViewById(R.id.tv_syllabus);
         progressBar=(ProgressBar)findViewById(R.id.progress_bar);
         fillInfo(course);
         courseInfoExpand=(ExpandableLayout)findViewById(R.id.expand_course_info);
-        file= new File(getFilesDir(),course.getCourseCode()+".html");
+        File versionPath=new File(getFilesDir(),String.valueOf(course.getVersion()));
+        file= new File(versionPath,course.getCourseCode()+".html");
         ActionBar toolbar=getSupportActionBar();
         if (toolbar != null) {
             toolbar.setTitle(course.getShortName());
         }
-        if(file.exists())
+        if (file.exists()) {
             htmlFileToString(file);
-        else{
-            FirebaseStorage.getInstance().getReference().child("syllabus/"+course.getCourseCode()+".html").getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            Log.d(TAG,"Fetching from OFFLINE");
+        } else {
+            versionPath.mkdirs();
+            FirebaseStorage.getInstance().getReference().child("syllabus/" + course.getCourseCode() + ".html").getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
                 @Override
                 public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
                     htmlFileToString(file);
-
-                    // Local temp file has been created
+                    Log.d(TAG,"fetching from ONLINE ");
+                    //Local file is created by Firebase itself.
                 }
             }).addOnFailureListener(new OnFailureListener() {
                 @Override
                 public void onFailure(@NonNull Exception exception) {
-                    Log.d(TAG,"Failed to download");
+                    Log.d(TAG, "Failed to download");
                     // Handle any errors
                 }
             });
@@ -95,17 +104,15 @@ public class SyllabusViewActivity extends AppCompatActivity {
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.my_course_online,menu);
-        menu.findItem(R.id.menu_info).setOnMenuItemClickListener(new MenuItem.OnMenuItemClickListener() {
-            @Override
-            public boolean onMenuItemClick(MenuItem item) {
-                if(courseInfoExpand.isExpanded())
-                    courseInfoExpand.collapse();
-                else
-                    courseInfoExpand.expand();
-                return true;
-            }
-        });
+        if (isCourseOnline) {
+            getMenuInflater().inflate(R.menu.my_course_online, menu);
+            menu.findItem(R.id.menu_add_to_my_course).setOnMenuItemClickListener(this);
+            menu.findItem(R.id.menu_info).setOnMenuItemClickListener(this);
+        }
+        else {
+            getMenuInflater().inflate(R.menu.my_course_offline,menu);
+            menu.findItem(R.id.menu_info).setOnMenuItemClickListener(this);
+        }
 
 
         return super.onCreateOptionsMenu(menu);
@@ -156,4 +163,18 @@ public class SyllabusViewActivity extends AppCompatActivity {
     }
 
 
+    @Override
+    public boolean onMenuItemClick(MenuItem item) {
+        switch (item.getItemId()){
+            case R.id.menu_info:
+                if (courseInfoExpand.isExpanded())
+                    courseInfoExpand.collapse();
+                else
+                    courseInfoExpand.expand();
+                return true;
+            case R.id.menu_add_to_my_course:
+
+        }
+        return false;
+    }
 }

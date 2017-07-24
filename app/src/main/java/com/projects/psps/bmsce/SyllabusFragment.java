@@ -221,6 +221,7 @@ public class SyllabusFragment extends Fragment implements View.OnClickListener,C
                 final FbCourse course= (FbCourse) respctiveCourseList.getItemAtPosition(position);
                 Log.d(TAG,course.getCourseName());
                 Intent intent=new Intent(getContext(),SyllabusViewActivity.class);
+                intent.putExtra(SyllabusViewActivity.IS_COURSE_ONLINE,true);
                 intent.putExtra("course",course);
                 startActivity(intent);
 

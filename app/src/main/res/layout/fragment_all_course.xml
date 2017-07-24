@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <Spinner
+        android:id="@+id/spn_branch"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_height"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:entries="@array/branch" />
+
+    <Spinner
+        android:id="@+id/spn_sem"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_height"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:entries="@array/semesters_for_majority" />
+
+    <android.support.v7.widget.RecyclerView
+        android:id="@+id/rv_respective_course"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"/>
+</LinearLayout>

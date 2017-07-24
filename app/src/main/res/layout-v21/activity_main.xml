@@ -13,6 +13,8 @@
         app:menu="@menu/activity_main"
         app:itemIconTint="@drawable/bottom_nav_color_selector"
         app:itemTextColor="@drawable/bottom_nav_color_selector"
+        android:elevation="1dp"
+        app:itemBackground="@color/white"
         android:layout_marginRight="0dp"
         app:layout_constraintRight_toRightOf="parent"
         android:layout_marginLeft="0dp"

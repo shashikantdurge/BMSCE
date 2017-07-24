@@ -29,15 +29,17 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
 
     @Override
     public boolean onNavigationItemSelected(@NonNull MenuItem item) {
+        FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
         switch (item.getItemId()) {
+
             case R.id.menu_main_chat:
-                bottomNavigationView.setVisibility(View.INVISIBLE);
                 //change the icon
                 break;
             case R.id.menu_main_event:
+                fragmentTransaction.replace(R.id.fragment_container_main,new SyllabusFragment1());
+                fragmentTransaction.commit();
                 break;
             case R.id.menu_main_syllabus:
-                FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
                 fragmentTransaction.replace(R.id.fragment_container_main,new SyllabusFragment());
                 fragmentTransaction.commit();
                 break;

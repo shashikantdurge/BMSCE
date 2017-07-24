@@ -2,19 +2,21 @@ package com.projects.psps.bmsce.firebase;
 
 import java.io.Serializable;
 
+import io.realm.RealmModel;
+
 /**
  * Created by vasan on 29-06-2017.
  */
 
 public class FbCourse implements Serializable{
+
+    private Float version;
     private String courseName;
     private String shortName;
     private String courseCode;
     private int l,t,p,s;
-
-
-
     private int totalCredits;
+
 
     public FbCourse(String courseName, String courseCode, int l) {
         this.courseName = courseName;
@@ -24,6 +26,14 @@ public class FbCourse implements Serializable{
 
     public FbCourse(){
         //Empty Contructor Required
+    }
+
+    public Float getVersion() {
+        return version;
+    }
+
+    public void setVersion(Float version) {
+        this.version = version;
     }
 
     public String getCourseName() {
