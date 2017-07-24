@@ -13,8 +13,6 @@ import com.projects.psps.bmsce.realm.Course;
 
 import java.util.Locale;
 
-import ca.barrenechea.widget.recyclerview.decoration.StickyHeaderAdapter;
-import ca.barrenechea.widget.recyclerview.decoration.StickyHeaderDecoration;
 import io.realm.OrderedRealmCollection;
 import io.realm.RealmRecyclerViewAdapter;
 
@@ -22,7 +20,7 @@ import io.realm.RealmRecyclerViewAdapter;
  * Created by vasan on 22-07-2017.
  */
 
-class RealmCourseAdapter  extends RealmRecyclerViewAdapter<Course,RealmCourseAdapter.MyViewHolder> implements StickyHeaderAdapter<RealmCourseAdapter.HeaderHolder>{
+class RealmCourseAdapter  extends RealmRecyclerViewAdapter<Course,RealmCourseAdapter.MyViewHolder> implements CourseHeaderAdapter<RealmCourseAdapter.HeaderHolder>{
 
     private static int courseType=0,n;
     private static int[] courseTypeCount;
@@ -30,6 +28,9 @@ class RealmCourseAdapter  extends RealmRecyclerViewAdapter<Course,RealmCourseAda
         super(data, autoUpdate);
         courseTypeCount=new int[data.where().distinct("courseType").size()];
         n=courseTypeCount.length;
+        if (n == 0) {
+            Log.d("NO COURSES FOUND"," RETURNING!!!");
+        }
         courseTypeCount[0]=(int) data.where().equalTo("courseType",0).count();
         for(int i=1;i<n;i++) {
             courseTypeCount[i]=(int) data.where().equalTo("courseType",i).count()+courseTypeCount[i-1];

@@ -31,7 +31,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
-import ca.barrenechea.widget.recyclerview.decoration.StickyHeaderDecoration;
 import io.realm.OrderedRealmCollection;
 import io.realm.OrderedRealmCollectionSnapshot;
 import io.realm.Realm;

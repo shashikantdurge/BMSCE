@@ -18,6 +18,7 @@ android {
         }
     }
 }
+//TODO : ca.barrenechea.header-decor:header-decor:0.2.8 should be removed later
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
