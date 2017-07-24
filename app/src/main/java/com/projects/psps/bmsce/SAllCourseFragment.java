@@ -31,6 +31,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
 
+import ca.barrenechea.widget.recyclerview.decoration.StickyHeaderDecoration;
 import io.realm.OrderedRealmCollection;
 import io.realm.OrderedRealmCollectionSnapshot;
 import io.realm.Realm;
@@ -49,6 +50,7 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
     DatabaseReference syllabusReference;
     RealmList<Course> courseRealmList;
     BranchSemCourses branchSemCourses;
+    boolean decorationNotGiven=true;
 
 
     public SAllCourseFragment() {
@@ -178,7 +180,14 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
                     branchSemCourses=realm.copyToRealmOrUpdate(branchSemCourses);
                 }
             });
-            respectiveCourseListRv.setAdapter(new RealmCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false));
+            RealmCourseAdapter courseAdapter=new RealmCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false);
+            StickyHeaderDecoration decoration=new StickyHeaderDecoration(courseAdapter);
+            respectiveCourseListRv.setAdapter(courseAdapter);
+            if (decorationNotGiven) {
+                respectiveCourseListRv.addItemDecoration(decoration,1);
+                decorationNotGiven=false;
+            }
+
         }
 
         @Override
