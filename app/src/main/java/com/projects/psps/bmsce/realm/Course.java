@@ -2,6 +2,8 @@ package com.projects.psps.bmsce.realm;
 
 import com.google.firebase.database.DataSnapshot;
 
+import java.io.Serializable;
+
 import io.realm.RealmObject;
 import io.realm.annotations.Index;
 import io.realm.annotations.PrimaryKey;
@@ -10,7 +12,7 @@ import io.realm.annotations.PrimaryKey;
  * Created by vasan on 29-06-2017.
  */
 
-public class Course extends RealmObject{
+public class Course extends RealmObject implements Serializable{
 
     public final static int CREATE_WITHOUT_PRIMARY=1;
     @Index

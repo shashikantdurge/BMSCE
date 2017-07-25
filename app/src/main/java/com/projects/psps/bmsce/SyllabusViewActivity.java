@@ -23,6 +23,8 @@ import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
 import com.projects.psps.bmsce.firebase.FbCourse;
+import com.projects.psps.bmsce.realm.Course;
+import com.projects.psps.bmsce.realm.MyCourses;
 
 import net.cachapa.expandablelayout.ExpandableLayout;
 
@@ -32,9 +34,12 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.IOException;
 
+import io.realm.Realm;
+
 public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.OnMenuItemClickListener{
 
     final static  String TAG="SYLLABUS_MAIN_ACTIVITY";
+    public final static String COURSE_CODE="courseCode";
     TextView syllabusTv;
     Spannable spannable;
     ProgressBar progressBar;
@@ -42,6 +47,7 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
     ExpandableLayout courseInfoExpand;
     final static String IS_COURSE_ONLINE="iscourseonine";
     boolean isCourseOnline =true;
+    Course course;
 
 
     @Override
@@ -49,7 +55,8 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_syllabus_main);
         Intent intent=getIntent();
-        FbCourse course= (FbCourse) intent.getSerializableExtra("course");
+
+        course=Realm.getDefaultInstance().where(Course.class).equalTo(COURSE_CODE,intent.getStringExtra(COURSE_CODE)).findFirst();
         isCourseOnline =intent.getBooleanExtra(IS_COURSE_ONLINE,true);
         Log.d(TAG,course.getCourseName());
         syllabusTv=(TextView)findViewById(R.id.tv_syllabus);
@@ -85,7 +92,7 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
 
     }
 
-    void fillInfo(FbCourse course) {
+    void fillInfo(Course course) {
         TextView ltpsTv=(TextView)findViewById(R.id.tv_l);
         ltpsTv.setText(String.valueOf(course.getL()));
         ltpsTv=(TextView)findViewById(R.id.tv_t);
@@ -173,6 +180,16 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
                     courseInfoExpand.expand();
                 return true;
             case R.id.menu_add_to_my_course:
+                Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                    @Override
+                    public void execute(Realm realm) {
+                        MyCourses myCourses=realm.where(MyCourses.class).findFirst();
+                        if(myCourses==null){
+                            myCourses=realm.createObject(MyCourses.class);
+                        }
+                        myCourses.addToMyCourses(course);
+                    }
+                });
 
         }
         return false;

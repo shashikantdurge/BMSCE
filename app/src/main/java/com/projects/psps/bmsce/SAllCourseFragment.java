@@ -19,20 +19,12 @@ import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.GenericTypeIndicator;
 import com.google.firebase.database.ValueEventListener;
-import com.projects.psps.bmsce.firebase.FbCourse;
 import com.projects.psps.bmsce.realm.BranchSemCourses;
 import com.projects.psps.bmsce.realm.Course;
-
-import org.json.JSONArray;
-
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
-
-import io.realm.OrderedRealmCollection;
-import io.realm.OrderedRealmCollectionSnapshot;
 import io.realm.Realm;
 import io.realm.RealmList;
 
@@ -134,6 +126,17 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
 
     }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        if (branchSemCourses != null) {
+            RealmCourseAdapter courseAdapter=new RealmCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false);
+            StickyHeaderDecoration decoration=new StickyHeaderDecoration(courseAdapter);
+            respectiveCourseListRv.addItemDecoration(decoration,1);
+        }
+
+    }
+
     ValueEventListener courseReader=new ValueEventListener() {
         @Override
         public void onDataChange(final DataSnapshot dataSnapshot) {
@@ -180,9 +183,9 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
                 }
             });
             RealmCourseAdapter courseAdapter=new RealmCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false);
-            StickyHeaderDecoration decoration=new StickyHeaderDecoration(courseAdapter);
             respectiveCourseListRv.setAdapter(courseAdapter);
             if (decorationNotGiven) {
+                StickyHeaderDecoration decoration=new StickyHeaderDecoration(courseAdapter);
                 respectiveCourseListRv.addItemDecoration(decoration,1);
                 decorationNotGiven=false;
             }

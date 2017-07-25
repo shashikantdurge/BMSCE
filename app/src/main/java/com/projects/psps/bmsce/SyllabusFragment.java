@@ -214,6 +214,7 @@ public class SyllabusFragment extends Fragment implements View.OnClickListener,C
         }
     };
 
+
     @Override
     public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
         switch (parent.getId()){

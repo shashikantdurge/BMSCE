@@ -13,17 +13,26 @@ import io.realm.RealmObject;
 
 public class MyCourses extends RealmObject {
 
-    RealmList<Course> courses;
+    private RealmList<Course> courses;
     String branch;
     int sem;
 
     public MyCourses() {
     }
 
-    void addToMyCourses(FbCourse course) {
+    public void addToMyCourses(Course course) {
+        courses.add(course);
 
     }
-    void removeFromMyCourses(String course) {
+    public void removeFromMyCourses(String courseCode) {
 
+    }
+
+    public RealmList<Course> getCourses() {
+        return courses;
+    }
+
+    public void setCourses(RealmList<Course> courses) {
+        this.courses = courses;
     }
 }
