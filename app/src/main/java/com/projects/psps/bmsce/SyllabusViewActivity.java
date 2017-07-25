@@ -22,7 +22,6 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
-import com.projects.psps.bmsce.firebase.FbCourse;
 import com.projects.psps.bmsce.realm.Course;
 import com.projects.psps.bmsce.realm.MyCourses;
 

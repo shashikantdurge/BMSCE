@@ -29,6 +29,10 @@ class RealmCourseAdapter  extends RealmRecyclerViewAdapter<Course,RealmCourseAda
     private static int[] courseTypeCount;
     RealmCourseAdapter(@Nullable OrderedRealmCollection<Course> data, boolean autoUpdate) {
         super(data, autoUpdate);
+        if(data==null){
+            Log.d("COURSE_ADAPTER "," Data is null!!!");
+            return;
+        }
         courseTypeCount=new int[data.where().distinct("courseType").size()];
         n=courseTypeCount.length;
         if (n == 0) {

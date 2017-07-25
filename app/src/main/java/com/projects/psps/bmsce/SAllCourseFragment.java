@@ -28,8 +28,8 @@ import java.util.Objects;
 import io.realm.Realm;
 import io.realm.RealmList;
 
-/**
- * Created by vasan on 22-07-2017.
+/*
+  Created by vasan on 22-07-2017.
  */
 
 public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSelectedListener{
@@ -41,12 +41,14 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
     DatabaseReference syllabusReference;
     RealmList<Course> courseRealmList;
     BranchSemCourses branchSemCourses;
-    boolean decorationNotGiven=true;
+    final static String TAG="ALL_COURSES";
+
 
 
     public SAllCourseFragment() {
         // Required empty public constructor
     }
+
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -63,7 +65,9 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
         respectiveCourseListRv=(RecyclerView)rootView.findViewById(R.id.rv_respective_course);
         respectiveCourseListRv.setLayoutManager(new LinearLayoutManager(getContext()));
         respectiveCourseListRv.addItemDecoration(new DividerItemDecoration(getContext(),LinearLayoutManager.VERTICAL));
-
+        RealmCourseAdapter courseAdapter=new RealmCourseAdapter(null,false);
+        StickyHeaderDecoration decoration=new StickyHeaderDecoration(courseAdapter);
+        respectiveCourseListRv.addItemDecoration(decoration,1);
         return rootView;
     }
 
@@ -105,7 +109,8 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
                     respectiveCourseListRv.setAdapter(null);
                     return;
                 }
-                FirebaseDatabase.getInstance().getReference("/branch_sem_courses/"+branch+sem).addListenerForSingleValueEvent(courseReader);
+                loadCourses(branch+sem);
+
                 break;
             case R.id.spn_sem:
                 String branch1 = String.valueOf(branchSpn.getSelectedItem()).substring(0, 2);
@@ -126,13 +131,17 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
 
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        if (branchSemCourses != null) {
+    void loadCourses(String branchSem){
+        //Check for offline . if not present get it from online and show that its from offline and might have changed.
+        branchSemCourses=Realm.getDefaultInstance().where(BranchSemCourses.class).equalTo("branchSem",branchSem).findFirst();
+        if(branchSemCourses==null){
+            //Load from the cloud
+            Log.d(TAG,"loadCourses , ONLINE ");
+            FirebaseDatabase.getInstance().getReference("/branch_sem_courses/"+branchSem).addListenerForSingleValueEvent(courseReader);
+        }
+        else{
             RealmCourseAdapter courseAdapter=new RealmCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false);
-            StickyHeaderDecoration decoration=new StickyHeaderDecoration(courseAdapter);
-            respectiveCourseListRv.addItemDecoration(decoration,1);
+            respectiveCourseListRv.setAdapter(courseAdapter);
         }
 
     }
@@ -184,11 +193,7 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
             });
             RealmCourseAdapter courseAdapter=new RealmCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false);
             respectiveCourseListRv.setAdapter(courseAdapter);
-            if (decorationNotGiven) {
-                StickyHeaderDecoration decoration=new StickyHeaderDecoration(courseAdapter);
-                respectiveCourseListRv.addItemDecoration(decoration,1);
-                decorationNotGiven=false;
-            }
+
 
         }
 
