@@ -6,17 +6,12 @@ import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AbsListView;
-import android.widget.ListView;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener{
 
     BottomNavigationView bottomNavigationView;
     FragmentManager fragmentManager;
-    final static String TAG="MAIN_ACTIVITY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,8 +31,6 @@ public class MainActivity extends AppCompatActivity implements BottomNavigationV
                 //change the icon
                 break;
             case R.id.menu_main_event:
-                fragmentTransaction.replace(R.id.fragment_container_main,new SyllabusFragment1());
-                fragmentTransaction.commit();
                 break;
             case R.id.menu_main_syllabus:
                 fragmentTransaction.replace(R.id.fragment_container_main,new SyllabusFragment());

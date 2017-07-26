@@ -1,5 +1,6 @@
 package com.projects.psps.bmsce;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -22,9 +23,11 @@ import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.projects.psps.bmsce.realm.BranchSemCourses;
 import com.projects.psps.bmsce.realm.Course;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Objects;
+
 import io.realm.Realm;
 import io.realm.RealmList;
 
@@ -33,15 +36,16 @@ import io.realm.RealmList;
  */
 
 public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSelectedListener{
-    Spinner branchSpn,semSpn;
-    RecyclerView respectiveCourseListRv;
-    String lastSelectedBranch="--";
-    ArrayList<String> semesters;
-    SpinnerAdapter spinnerAdapter;
-    DatabaseReference syllabusReference;
-    RealmList<Course> courseRealmList;
-    BranchSemCourses branchSemCourses;
-    final static String TAG="ALL_COURSES";
+    private Spinner branchSpn;
+    private Spinner semSpn;
+    private RecyclerView respectiveCourseListRv;
+    private String lastSelectedBranch="--";
+    private ArrayList<String> semesters;
+    private SpinnerAdapter spinnerAdapter;
+    private DatabaseReference syllabusReference;
+    private RealmList<Course> courseRealmList;
+    private BranchSemCourses branchSemCourses;
+    private final static String TAG="ALL_COURSES";
 
 
 
@@ -65,7 +69,7 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
         respectiveCourseListRv=(RecyclerView)rootView.findViewById(R.id.rv_respective_course);
         respectiveCourseListRv.setLayoutManager(new LinearLayoutManager(getContext()));
         respectiveCourseListRv.addItemDecoration(new DividerItemDecoration(getContext(),LinearLayoutManager.VERTICAL));
-        RealmCourseAdapter courseAdapter=new RealmCourseAdapter(null,false);
+        RealmAllCourseAdapter courseAdapter=new RealmAllCourseAdapter(null,false);
         StickyHeaderDecoration decoration=new StickyHeaderDecoration(courseAdapter);
         respectiveCourseListRv.addItemDecoration(decoration,1);
         return rootView;
@@ -87,7 +91,7 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
             case R.id.spn_branch:
                 String branch=String.valueOf(branchSpn.getSelectedItem()).substring(0,2);
                 String sem=String.valueOf(semSpn.getSelectedItem()).substring(0,1);
-                if (branch.equals("AT") && !lastSelectedBranch.equals("AT")) {        //Add 9th and 10th smesters to the list
+                if (branch.equals("AT") && !lastSelectedBranch.equals("AT")) {        //Add 9th and 10th semesters to the list
                     semesters.add("9th sem");
                     semesters.add("Xth sem");
                     spinnerAdapter = new ArrayAdapter<>(getContext(), android.R.layout.simple_list_item_1, semesters);
@@ -131,7 +135,7 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
 
     }
 
-    void loadCourses(String branchSem){
+    private void loadCourses(String branchSem){
         //Check for offline . if not present get it from online and show that its from offline and might have changed.
         branchSemCourses=Realm.getDefaultInstance().where(BranchSemCourses.class).equalTo("branchSem",branchSem).findFirst();
         if(branchSemCourses==null){
@@ -140,16 +144,15 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
             FirebaseDatabase.getInstance().getReference("/branch_sem_courses/"+branchSem).addListenerForSingleValueEvent(courseReader);
         }
         else{
-            RealmCourseAdapter courseAdapter=new RealmCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false);
+            RealmAllCourseAdapter courseAdapter=new RealmAllCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false);
             respectiveCourseListRv.setAdapter(courseAdapter);
         }
 
     }
 
-    ValueEventListener courseReader=new ValueEventListener() {
+    private final ValueEventListener courseReader=new ValueEventListener() {
         @Override
         public void onDataChange(final DataSnapshot dataSnapshot) {
-           //TODO : put it in the local realm database.PENDING.......
             Realm realm=Realm.getDefaultInstance();
             courseRealmList=new RealmList<>();
             //BranchSemCourses branchSemCourses=new BranchSemCourses(dataSnapshot.getKey());
@@ -191,7 +194,7 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
                     branchSemCourses=realm.copyToRealmOrUpdate(branchSemCourses);
                 }
             });
-            RealmCourseAdapter courseAdapter=new RealmCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false);
+            RealmAllCourseAdapter courseAdapter=new RealmAllCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false);
             respectiveCourseListRv.setAdapter(courseAdapter);
 
 
@@ -202,4 +205,64 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
 
         }
     };
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        Log.d(TAG,"onResume");
+    }
+
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.d(TAG,"onViewStateRestored");
+    }
+
+    @Override
+    public void onAttach(Context context) {
+        super.onAttach(context);
+        Log.d(TAG,"onAttach");
+    }
+
+    @Override
+    public void onDetach() {
+        super.onDetach();
+        Log.d(TAG,"onDetach");
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        Log.d(TAG,"onDestroy");
+    }
+
+    @Override
+    public void onAttachFragment(Fragment childFragment) {
+        super.onAttachFragment(childFragment);
+        Log.d(TAG,"onAttachFragment");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        Log.d(TAG,"onDestroyView");
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        Log.d(TAG,"onPause");
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        Log.d(TAG,"onStart");
+        try{
+            respectiveCourseListRv.getAdapter().notifyDataSetChanged();
+        }catch (NullPointerException e){
+            Log.d(TAG,"onStart"+e.getMessage());
+        }
+
+    }
 }

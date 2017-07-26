@@ -44,7 +44,7 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
     ProgressBar progressBar;
     File file;
     ExpandableLayout courseInfoExpand;
-    final static String IS_COURSE_ONLINE="iscourseonine";
+    public final static String IS_COURSE_ONLINE="iscourseonine";
     boolean isCourseOnline =true;
     Course course;
 
@@ -193,4 +193,5 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
         }
         return false;
     }
+
 }

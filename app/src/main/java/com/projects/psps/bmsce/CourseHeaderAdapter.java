@@ -4,7 +4,7 @@ import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;
 
 /**
- * Created by vasan on 25-07-2017.
+ Created by vasan on 25-07-2017.
  */
 
  interface CourseHeaderAdapter<T extends RecyclerView.ViewHolder> {
