@@ -1,4 +1,4 @@
-package com.projects.psps.bmsce;
+package com.projects.psps.bmsce.syllabus;
 
 /* *
  * Created by vasan on 25-07-2017.

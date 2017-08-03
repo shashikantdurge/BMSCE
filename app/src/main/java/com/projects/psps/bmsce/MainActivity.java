@@ -2,30 +2,32 @@ package com.projects.psps.bmsce;
 
 import android.support.annotation.NonNull;
 import android.support.design.widget.BottomNavigationView;
-import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.Toolbar;
 import android.view.MenuItem;
-import android.view.Window;
+
+import com.projects.psps.bmsce.syllabus.SyllabusFragment;
 
 public class MainActivity extends AppCompatActivity implements BottomNavigationView.OnNavigationItemSelectedListener,MainActivityListener{
 
-    BottomNavigationView bottomNavigationView;
-    FragmentManager fragmentManager;
-    final static String TAG="MAIN_ACTIVITY";
-    final static int COURSE_ADDED=0;
+    private FragmentManager fragmentManager;
+    //final static String TAG="MAIN_ACTIVITY";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main_2);
+        setContentView(R.layout.activity_main);
         setSupportActionBar((Toolbar)findViewById(R.id.toolbar));
-        bottomNavigationView=(BottomNavigationView)findViewById(R.id.bottomNavigationView);
+        BottomNavigationView bottomNavigationView = (BottomNavigationView) findViewById(R.id.bottomNavigationView);
         bottomNavigationView.setOnNavigationItemSelectedListener(this);
         fragmentManager=getSupportFragmentManager();
+
+        FragmentTransaction fragmentTransaction=fragmentManager.beginTransaction();
+        fragmentTransaction.replace(R.id.fragment_container_main,new SyllabusFragment());
+        fragmentTransaction.commit();
 
     }
 

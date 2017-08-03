@@ -1,13 +1,11 @@
 package com.projects.psps.bmsce.realm;
 
 import java.util.Date;
-import java.util.List;
-
 import io.realm.RealmList;
 import io.realm.RealmObject;
 
-/**
- * Created by vasan on 22-07-2017.
+/*
+ Created by vasan on 22-07-2017.
  */
 
 public class Portion extends RealmObject {

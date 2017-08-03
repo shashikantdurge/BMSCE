@@ -5,11 +5,10 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.util.AttributeSet;
 import android.view.View;
-import android.view.Window;
 import android.widget.FrameLayout;
 
-/**
- * Created by ${SHASHIKANt} on 30-07-2017.
+/*
+ Created by ${SHASHIKANt} on 30-07-2017.
  */
 
 public class FrameBehavior extends CoordinatorLayout.Behavior<FrameLayout> {

@@ -7,9 +7,12 @@
         android:icon="@drawable/ic_info_outline_black_24dp"
         app:showAsAction="always"/>
     <item
+        android:id="@+id/menu_refresh"
+        android:title="Refresh"/>
+    <!--<item
         android:id="@+id/menu_add_to_my_course"
         android:title="@string/add_course"
         android:icon="@drawable/ic_add_to_my_course"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"/>-->
 
 </menu>

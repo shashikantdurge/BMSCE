@@ -6,9 +6,9 @@
         android:title="@string/info"
         android:icon="@drawable/ic_info_outline_black_24dp"
         app:showAsAction="always"/>
-    <item
+    <!--<item
         android:id="@+id/menu_create_portion"
         android:title="@string/portion"
-        app:showAsAction="ifRoom"/>
+        app:showAsAction="ifRoom"/>-->
 
 </menu>

@@ -2,18 +2,12 @@ package com.projects.psps.bmsce.realm;
 
 import android.os.AsyncTask;
 import android.util.Log;
-
-import com.projects.psps.bmsce.firebase.FbCourse;
-
-import java.util.Collection;
-import java.util.List;
-
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
 import io.realm.RealmResults;
 
-/**
+/*
  * Created by vasan on 22-07-2017.
  */
 

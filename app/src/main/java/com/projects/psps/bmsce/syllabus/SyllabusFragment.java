@@ -1,4 +1,4 @@
-package com.projects.psps.bmsce;
+package com.projects.psps.bmsce.syllabus;
 
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -8,6 +8,10 @@ import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.projects.psps.bmsce.R;
+import com.projects.psps.bmsce.syllabus.SAllCourseFragment;
+import com.projects.psps.bmsce.syllabus.SMyCourseFragment;
 
 /*
  Created by vasan on 22-07-2017.
@@ -62,11 +66,11 @@ public class SyllabusFragment extends Fragment {
         @Override
         public Fragment getItem(int position) {
             switch (position) {
-                case 0: // Fragment # 0 - This will show FirstFragment
-                    return new SPortionFragment();
-                case 1: // Fragment # 0 - This will show FirstFragment different title
+                /*case 0: // Fragment # 0 - This will show FirstFragment
+                    return new SPortionFragment();*/
+                case 0: // Fragment # 0 - This will show FirstFragment different title
                     return new SMyCourseFragment();
-                case 2:
+                case 1:
                     return new SAllCourseFragment();
                 default:
                     return null;
@@ -75,17 +79,17 @@ public class SyllabusFragment extends Fragment {
 
         @Override
         public int getCount() {
-            return 3;
+            return 2;
         }
 
         @Override
         public CharSequence getPageTitle(int position) {
             switch (position){
+                /*case 0:
+                    return "PORTION";*/
                 case 0:
-                    return "PORTION";
-                case 1:
                     return "MY COURSES";
-                case 2:
+                case 1:
                     return "ALL COURSES";
                 default:
                     return "NULL";

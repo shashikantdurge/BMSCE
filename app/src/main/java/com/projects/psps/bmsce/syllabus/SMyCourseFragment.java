@@ -1,4 +1,4 @@
-package com.projects.psps.bmsce;
+package com.projects.psps.bmsce.syllabus;
 
 import android.content.Context;
 import android.content.Intent;
@@ -6,6 +6,7 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -19,6 +20,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.TextView;
 
+import com.projects.psps.bmsce.MainActivity;
+import com.projects.psps.bmsce.R;
 import com.projects.psps.bmsce.realm.Course;
 import com.projects.psps.bmsce.realm.MyCourses;
 
@@ -39,12 +42,11 @@ import io.realm.RealmResults;
 public class SMyCourseFragment extends Fragment {
     private MyCourses myCourses;
     private final static  String TAG="MY_COURSES";
-    List<String> selectedCourses =null;
-    boolean longClicked=false;
-    ActionMode actionMode;
+    private List<String> selectedCourses =new ArrayList<>(0);
+    private boolean longClicked=false;
     RecyclerView recyclerView;
 
-    MainActivityListener mainActivityListener;
+
     SMyCourseFragment(){
         //Empty Constructor
     }
@@ -53,7 +55,6 @@ public class SMyCourseFragment extends Fragment {
     @Override
     public void onAttach(Context context) {
         super.onAttach(context);
-        mainActivityListener= (MainActivityListener) context;
     }
 
     @Nullable
@@ -72,7 +73,7 @@ public class SMyCourseFragment extends Fragment {
         /*if(myCourses!=null)
             recyclerView.setAdapter(new RealmAllCourseAdapter(myCourses.getCourses(),true));*/
         try {
-            recyclerView.setAdapter(new RealmMyCourseAdapter(myCourses.getCourses(),true));
+            recyclerView.setAdapter(new RealmMyCourseAdapter(myCourses.getCourses()));
         }catch (NullPointerException e){
             Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
                 @Override
@@ -80,7 +81,9 @@ public class SMyCourseFragment extends Fragment {
                     myCourses= realm.createObject(MyCourses.class);
                 }
             });
-            recyclerView.setAdapter(new RealmMyCourseAdapter(myCourses.getCourses(),true));
+            recyclerView.setAdapter(new RealmMyCourseAdapter(myCourses.getCourses()));
+        }finally {
+            recyclerView.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
         }
         return view;
     }
@@ -143,8 +146,8 @@ public class SMyCourseFragment extends Fragment {
 
     class RealmMyCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmMyCourseAdapter.MyViewHolder> {
 
-        RealmMyCourseAdapter(@Nullable OrderedRealmCollection<Course> data, boolean autoUpdate) {
-            super(data, autoUpdate);
+        RealmMyCourseAdapter(@Nullable OrderedRealmCollection<Course> data) {
+            super(data, true);
         }
 
         @Override
@@ -159,19 +162,21 @@ public class SMyCourseFragment extends Fragment {
                 holder.courseName.setText(course.getCourseName());
                 holder.courseCode.setText(course.getCourseCode());
                 holder.totalCredits.setText(String.format(Locale.ENGLISH, "Credits %d", course.getTotalCredits()));
+                if(selectedCourses.contains(course.getCourseCode())){
+                        holder.itemView.setBackgroundColor(Color.argb(100,120,120,144));    //Not selected
+                }else{
+                    holder.itemView.setBackgroundColor(Color.argb(51,240,238,238));   //Selected
+                }
             }
-
 
         }
 
 
         class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener ,AdapterView.OnLongClickListener{
+            private ActionMode actionMode;
             final TextView courseName;
             final TextView courseCode;
             final TextView totalCredits;
-
-            public Course data;
-
 
             MyViewHolder(View view) {
                 super(view);
@@ -185,16 +190,17 @@ public class SMyCourseFragment extends Fragment {
             @Override
             public void onClick(View v) {
 
-                String courseCode=getData().get(getAdapterPosition()).getCourseCode();
+
+                @SuppressWarnings("ConstantConditions") String courseCode=getData().get(getAdapterPosition()).getCourseCode();
                 if(longClicked){
                     if(selectedCourses.contains(courseCode)){
-                        v.setBackgroundColor(Color.argb(51,240,238,238));
+                        v.setBackgroundColor(Color.argb(51,240,238,238));           //Not selected
                         selectedCourses.remove(courseCode);
                         if(selectedCourses.isEmpty())
                             actionMode.finish();
 
                     }else {
-                        v.setBackgroundColor(Color.argb(100,120,120,144));
+                        v.setBackgroundColor(Color.argb(100,120,120,144));          //Selected
                         selectedCourses.add(courseCode);
                     }
                     return;
@@ -216,10 +222,9 @@ public class SMyCourseFragment extends Fragment {
 
             @Override
             public boolean onLongClick(View view) {
-                String courseCode=getData().get(getAdapterPosition()).getCourseCode();
+                @SuppressWarnings("ConstantConditions") String courseCode=getData().get(getAdapterPosition()).getCourseCode();
                 if(!longClicked){
                     longClicked=true;
-                    //TODO Set Action Bar
                     actionMode=((MainActivity)getContext()).startActionMode(callback);
                     selectedCourses =new ArrayList<>();
 
@@ -238,7 +243,7 @@ public class SMyCourseFragment extends Fragment {
         }
     }
 
-    ActionMode.Callback callback=new ActionMode.Callback() {
+    private final ActionMode.Callback callback=new ActionMode.Callback() {
         @Override
         public boolean onCreateActionMode(ActionMode mode, Menu menu) {
             if(mode==null)
@@ -268,14 +273,17 @@ public class SMyCourseFragment extends Fragment {
                             myCourses.removeFromMyCourses(realmResults,realm);
                         }
                     });
+                    mode.finish();
             }
             return true;
         }
 
         @Override
         public void onDestroyActionMode(ActionMode mode) {
+            Log.d(TAG,"Action mode is destroyed");
             longClicked=false;
             selectedCourses.clear();
+            recyclerView.getAdapter().notifyDataSetChanged();
 
         }
     };

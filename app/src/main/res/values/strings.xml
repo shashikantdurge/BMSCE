@@ -4,12 +4,9 @@
     <string name="event">Event</string>
     <string name="chat">Chat</string>
     <string name="info">Information</string>
-    <string name="add_course">Add to My Course</string>
 
     //SYLLABUS
     <string name="portion">Portion</string>
-    <string name="my_courses">My Courses</string>
-    <string name="all_courses">All Courses</string>
     <!-- TODO: Remove or change this placeholder text -->
     <string name="credits">Credits %d</string>
 
@@ -42,6 +39,6 @@
     </string-array>
 
     <string name="not_found">We would love to add syllabus of \n%1$s \n%2$s\nPlease take 2 minutes to send the syllabus to <i>bmscesyllabus@gmail.com</i></string>
+    <string name="mail_address">bmscesyllabus@gmail.com</string>
 
-    <string name="btn_plus_description">Plus Button to add portions</string>
 </resources>

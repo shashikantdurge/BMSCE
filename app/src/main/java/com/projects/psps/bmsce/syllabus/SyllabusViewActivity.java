@@ -1,4 +1,4 @@
-package com.projects.psps.bmsce;
+package com.projects.psps.bmsce.syllabus;
 
 import android.content.Intent;
 import android.os.AsyncTask;
@@ -22,6 +22,7 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.firebase.storage.FileDownloadTask;
 import com.google.firebase.storage.FirebaseStorage;
+import com.projects.psps.bmsce.R;
 import com.projects.psps.bmsce.realm.Course;
 import com.projects.psps.bmsce.realm.MyCourses;
 
@@ -37,7 +38,7 @@ import io.realm.Realm;
 
 public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.OnMenuItemClickListener{
 
-    final static  String TAG="SYLLABUS_MAIN_ACTIVITY";
+    final static  String TAG="SYLLABUS_VIEW_ACTIVITY";
     public final static String COURSE_CODE="courseCode";
     TextView syllabusTv;
     Spannable spannable;
@@ -67,26 +68,14 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
         ActionBar toolbar=getSupportActionBar();
         if (toolbar != null) {
             toolbar.setTitle(course.getShortName());
+            toolbar.setDisplayHomeAsUpEnabled(true);
         }
         if (file.exists()) {
             htmlFileToString(file);
             Log.d(TAG,"Fetching from OFFLINE");
         } else {
             versionPath.mkdirs();
-            FirebaseStorage.getInstance().getReference().child("syllabus/" + course.getCourseCode() + ".html").getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
-                @Override
-                public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
-                    htmlFileToString(file);
-                    Log.d(TAG,"fetching from ONLINE ");
-                    //Local file is created by Firebase itself.
-                }
-            }).addOnFailureListener(new OnFailureListener() {
-                @Override
-                public void onFailure(@NonNull Exception exception) {
-                    Log.d(TAG, "Failed to download");
-                    // Handle any errors
-                }
-            });
+            getFromOnline();
         }
 
     }
@@ -109,11 +98,22 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
     }
 
     @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()){
+            case android.R.id.home:
+                onBackPressed();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         if (isCourseOnline) {
             getMenuInflater().inflate(R.menu.my_course_online, menu);
-            menu.findItem(R.id.menu_add_to_my_course).setOnMenuItemClickListener(this);
+            //menu.findItem(R.id.menu_add_to_my_course).setOnMenuItemClickListener(this);
             menu.findItem(R.id.menu_info).setOnMenuItemClickListener(this);
+            menu.findItem(R.id.menu_refresh).setOnMenuItemClickListener(this);
         }
         else {
             getMenuInflater().inflate(R.menu.my_course_offline,menu);
@@ -125,6 +125,24 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
     }
 
 
+
+    void getFromOnline(){
+        FirebaseStorage.getInstance().getReference().child("syllabus/" + course.getCourseCode() + ".html").getFile(file).addOnSuccessListener(new OnSuccessListener<FileDownloadTask.TaskSnapshot>() {
+            @Override
+            public void onSuccess(FileDownloadTask.TaskSnapshot taskSnapshot) {
+                htmlFileToString(file);
+                Log.d(TAG,"fetching from ONLINE ");
+                //Local file is created by Firebase itself.
+            }
+        }).addOnFailureListener(new OnFailureListener() {
+            @Override
+            public void onFailure(@NonNull Exception exception) {
+                Log.d(TAG, "Failed to download");
+
+                // Handle any errors
+            }
+        });
+    }
 
     //@TargetApi(Build.VERSION_CODES.LOLLIPOP)
     void htmlFileToString(File file)  {
@@ -177,8 +195,8 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
                     courseInfoExpand.collapse();
                 else
                     courseInfoExpand.expand();
-                return true;
-            case R.id.menu_add_to_my_course:
+                //return true;
+            /*case R.id.menu_add_to_my_course:
                 Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
                     @Override
                     public void execute(Realm realm) {
@@ -189,7 +207,10 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
                         myCourses.addToMyCourses(course);
                     }
                 });
-
+                break;*/
+            case R.id.menu_refresh:
+                getFromOnline();
+                return true;
         }
         return false;
     }

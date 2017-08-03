@@ -1,4 +1,4 @@
-package com.projects.psps.bmsce;
+package com.projects.psps.bmsce.syllabus;
 
 import android.support.v7.widget.RecyclerView;
 import android.view.ViewGroup;

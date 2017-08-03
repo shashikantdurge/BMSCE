@@ -1,6 +1,8 @@
-package com.projects.psps.bmsce;
+package com.projects.psps.bmsce.syllabus;
 
 import android.app.Dialog;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -12,10 +14,10 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.Locale;
+import com.projects.psps.bmsce.R;
 
 /**
- * Created by ${SHASHIKANt} on 02-08-2017.
+ Created by ${SHASHIKANt} on 02-08-2017.
  */
 
 public class NotFoundDailog extends DialogFragment implements View.OnClickListener{
@@ -73,6 +75,10 @@ public class NotFoundDailog extends DialogFragment implements View.OnClickListen
                 break;
             case R.id.btn_mail:
                 Toast.makeText(getContext(), "naale maadam", Toast.LENGTH_SHORT).show();
+                Intent intent=new Intent(Intent.ACTION_SEND, Uri.fromParts("mailto",getString(R.string.mail_address),null));
+                intent.setType("text/html");
+                intent.putExtra(Intent.EXTRA_SUBJECT,branch+" "+sem);
+                startActivity(Intent.createChooser(intent,"Send Email"));
         }
     }
 }
