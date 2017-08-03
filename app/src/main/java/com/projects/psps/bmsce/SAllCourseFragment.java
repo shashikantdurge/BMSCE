@@ -1,9 +1,15 @@
 package com.projects.psps.bmsce;
 
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.DividerItemDecoration;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -13,8 +19,10 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ProgressBar;
 import android.widget.Spinner;
 import android.widget.SpinnerAdapter;
+import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
@@ -46,6 +54,7 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
     private RealmList<Course> courseRealmList;
     private BranchSemCourses branchSemCourses;
     private final static String TAG="ALL_COURSES";
+    private ProgressBar progressBar;
 
 
 
@@ -67,11 +76,13 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
         branchSpn=(Spinner)rootView.findViewById(R.id.spn_branch);
         semSpn=(Spinner)rootView.findViewById(R.id.spn_sem);
         respectiveCourseListRv=(RecyclerView)rootView.findViewById(R.id.rv_respective_course);
+        progressBar=(ProgressBar)rootView.findViewById(R.id.progress_bar);
         respectiveCourseListRv.setLayoutManager(new LinearLayoutManager(getContext()));
         respectiveCourseListRv.addItemDecoration(new DividerItemDecoration(getContext(),LinearLayoutManager.VERTICAL));
         RealmAllCourseAdapter courseAdapter=new RealmAllCourseAdapter(null,false);
         StickyHeaderDecoration decoration=new StickyHeaderDecoration(courseAdapter);
         respectiveCourseListRv.addItemDecoration(decoration,1);
+
         return rootView;
     }
 
@@ -123,7 +134,8 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
                     respectiveCourseListRv.setAdapter(null);
                     return;
                 }
-                syllabusReference.child(branch1+sem1).addListenerForSingleValueEvent(courseReader);
+                //syllabusReference.child(branch1+sem1).addListenerForSingleValueEvent(courseReader);
+                loadCourses(branch1+sem1);
                 break;
 
 
@@ -136,15 +148,26 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
     }
 
     private void loadCourses(String branchSem){
+        progressBar.setVisibility(View.VISIBLE);
+        Log.d(TAG,"progressbar "+progressBar.isShown());
+
+        ConnectivityManager cm =(ConnectivityManager)getContext().getSystemService(Context.CONNECTIVITY_SERVICE);
+
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
         //Check for offline . if not present get it from online and show that its from offline and might have changed.
         branchSemCourses=Realm.getDefaultInstance().where(BranchSemCourses.class).equalTo("branchSem",branchSem).findFirst();
-        if(branchSemCourses==null){
+        if(branchSemCourses==null || isConnected){
             //Load from the cloud
             Log.d(TAG,"loadCourses , ONLINE ");
-            FirebaseDatabase.getInstance().getReference("/branch_sem_courses/"+branchSem).addListenerForSingleValueEvent(courseReader);
+            DatabaseReference databaseReference= FirebaseDatabase.getInstance().getReference("/branch_sem_courses/"+branchSem);
+            Log.d(TAG,"Database Reference" +databaseReference.toString());
+            databaseReference.addListenerForSingleValueEvent(courseReader);
         }
         else{
             RealmAllCourseAdapter courseAdapter=new RealmAllCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false);
+            progressBar.setVisibility(View.GONE);
+            Log.d(TAG,"Realm course "+branchSemCourses.getBranchSem());
             respectiveCourseListRv.setAdapter(courseAdapter);
         }
 
@@ -156,6 +179,13 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
             Realm realm=Realm.getDefaultInstance();
             courseRealmList=new RealmList<>();
             //BranchSemCourses branchSemCourses=new BranchSemCourses(dataSnapshot.getKey());
+            if(!dataSnapshot.exists()){
+                NotFoundDailog notFoundDailog=NotFoundDailog.newInstance(String.valueOf(branchSpn.getSelectedItem()),String.valueOf(semSpn.getSelectedItem()));
+                notFoundDailog.show(getChildFragmentManager(),"NOT_FOUND");
+                progressBar.setVisibility(View.INVISIBLE);
+                return;
+
+            }
             for(final DataSnapshot courseSnapShot:dataSnapshot.child("core_lab_mandatory").getChildren()){
                 realm.executeTransaction(new Realm.Transaction() {
                     @Override
@@ -195,6 +225,7 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
                 }
             });
             RealmAllCourseAdapter courseAdapter=new RealmAllCourseAdapter(branchSemCourses.getCourses().sort("courseType"),false);
+            progressBar.setVisibility(View.GONE);
             respectiveCourseListRv.setAdapter(courseAdapter);
 
 
@@ -202,7 +233,7 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
 
         @Override
         public void onCancelled(DatabaseError databaseError) {
-
+            Toast.makeText(getContext(), "Some problem while loading.", Toast.LENGTH_SHORT).show();
         }
     };
 

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:padding="@dimen/activity_horizontal_margin">
+
+    <TextView
+        android:id="@+id/tv_message"
+        android:layout_width="match_parent"
+        android:text="@string/not_found"
+        android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/btn_mail"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_height"
+        android:text="MAIL"
+        android:background="@drawable/btn_tl_tr"
+        android:textColor="@color/white"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        android:layout_marginTop="8dp"
+        app:layout_constraintTop_toBottomOf="@+id/tv_message" />
+
+
+    <Button
+        android:id="@+id/btn_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/btn_height"
+        android:text="Cancel"
+        android:layout_marginTop="8dp"
+        android:textColor="@color/colorPrimaryDark"
+        android:background="@drawable/btn_bl_br"/>
+
+
+
+</LinearLayout>

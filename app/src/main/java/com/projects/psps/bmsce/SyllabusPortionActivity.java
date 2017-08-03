@@ -5,7 +5,7 @@ import android.os.PersistableBundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 
-/**
+/*
  * Created by vasan on 15-07-2017.
  */
 

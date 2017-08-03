@@ -41,6 +41,7 @@
         <item>8th sem</item>
     </string-array>
 
+    <string name="not_found">We would love to add syllabus of \n%1$s \n%2$s\nPlease take 2 minutes to send the syllabus to <i>bmscesyllabus@gmail.com</i></string>
 
     <string name="btn_plus_description">Plus Button to add portions</string>
 </resources>

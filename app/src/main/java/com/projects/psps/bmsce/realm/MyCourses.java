@@ -5,11 +5,13 @@ import android.util.Log;
 
 import com.projects.psps.bmsce.firebase.FbCourse;
 
+import java.util.Collection;
 import java.util.List;
 
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmObject;
+import io.realm.RealmResults;
 
 /**
  * Created by vasan on 22-07-2017.
@@ -44,7 +46,8 @@ public class MyCourses extends RealmObject {
         }.execute(course.getCourseCode());
 
     }
-    public void removeFromMyCourses(String courseCode) {
+    public void removeFromMyCourses(RealmResults<Course> courseCodes, Realm realm) {
+        courses.removeAll(courseCodes);
 
     }
 

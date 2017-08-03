@@ -97,6 +97,7 @@ class RealmAllCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmAllCour
                 try{
                     if(v.isClickable()){
                         myCourses.addToMyCourses(course);
+                        notifyDataSetChanged();
                         /*Realm.getDefaultInstance().beginTransaction();
                         myCourses.addToMyCourses(course);
                         courses.add(course);
