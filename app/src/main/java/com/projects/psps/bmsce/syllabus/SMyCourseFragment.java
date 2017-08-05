@@ -226,6 +226,7 @@ public class SMyCourseFragment extends Fragment {
                 if(!longClicked){
                     longClicked=true;
                     actionMode=((MainActivity)getContext()).startActionMode(callback);
+
                     selectedCourses =new ArrayList<>();
 
                 }

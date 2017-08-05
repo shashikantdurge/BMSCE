@@ -36,7 +36,6 @@ import com.projects.psps.bmsce.realm.MyCourses;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -44,6 +43,7 @@ import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmRecyclerViewAdapter;
+import io.realm.RealmResults;
 
 /*
   Created by vasan on 22-07-2017.
@@ -160,7 +160,8 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
         boolean isConnected = activeNetwork != null && activeNetwork.isConnectedOrConnecting();
         //Check for offline . if not present get it from online and show that its from offline and might have changed.
         branchSemCourses = Realm.getDefaultInstance().where(BranchSemCourses.class).equalTo("branchSem", branchSem).findFirst();
-        if (branchSemCourses == null || isConnected) {
+        //TODO : if the courses were some days(1 week) old then only load from online
+        if (branchSemCourses == null || isConnected  ) {
             progressBar.setVisibility(View.VISIBLE);
             //Load from the cloud
             Log.d(TAG, "loadCourses , ONLINE ");
@@ -257,10 +258,9 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
 
 }
 class RealmAllCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmAllCourseAdapter.MyViewHolder> implements CourseHeaderAdapter<RealmAllCourseAdapter.HeaderHolder> {
-        private MyCourses myCourses;
-        private RealmList<Course> courses;
         private int n;
         private static int[] courseTypeCount;
+        RealmList<Course> myCoursesList;
         RealmAllCourseAdapter(@Nullable OrderedRealmCollection<Course> data, boolean autoUpdate) {
             super(data, autoUpdate);
             if(data==null){
@@ -277,9 +277,7 @@ class RealmAllCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmAllCour
             for(int i=1;i<n;i++) {
                 courseTypeCount[i]=(int) data.where().equalTo("courseType",i).count()+courseTypeCount[i-1];
             }
-            myCourses=Realm.getDefaultInstance().where(MyCourses.class).findFirst();
-            if(myCourses!=null)
-                courses=myCourses.getCourses();
+            myCoursesList=Realm.getDefaultInstance().where(MyCourses.class).findFirst().getCourses();
         }
 
         @Override
@@ -294,7 +292,7 @@ class RealmAllCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmAllCour
                 holder.courseName.setText(course.getCourseName());
                 holder.courseCode.setText(course.getCourseCode());
                 holder.totalCredits.setText(String.format(Locale.ENGLISH, "Credits %d", course.getTotalCredits()));
-                if(courses.contains(course)){
+                if(myCoursesList.contains(course)){
                     holder.downloadImgBtn.setBackgroundResource(R.drawable.ic_check_circle_black_24dp);
                     holder.downloadImgBtn.setClickable(false);
                 }else{
@@ -326,23 +324,28 @@ class RealmAllCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmAllCour
             }
 
             @Override
-            public void onClick(View v) {
+            public void onClick(final View v) {
                 if(v.getId()==R.id.downloadIb){
                     final Course course=getItem(getAdapterPosition());
                     try{
                         if(v.isClickable()){
-                            myCourses.addToMyCourses(course);
-                            notifyDataSetChanged();
-                        /*Realm.getDefaultInstance().beginTransaction();
-                        myCourses.addToMyCourses(course);
-                        courses.add(course);
-                        Realm.getDefaultInstance().commitTransaction();*/
+                            Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                                @Override
+                                public void execute(Realm realm) {
+                                    MyCourses myCourses=realm.where(MyCourses.class).findFirst();
+                                    if(myCourses==null) {
+                                        myCourses = realm.createObject(MyCourses.class);
+                                    }
+                                    myCourses.getCourses().where().equalTo("courseCode",course.getCourseCode()).findAll().deleteAllFromRealm();
+                                    myCourses.addToMyCourses(course);
+                                }
+                            });
                         }
                     }catch (NullPointerException e){
                         Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
                             @Override
                             public void execute(Realm realm) {
-                                myCourses=realm.where(MyCourses.class).findFirst();
+                                MyCourses myCourses=realm.where(MyCourses.class).findFirst();
                                 if(myCourses==null){
                                     myCourses=realm.createObject(MyCourses.class);
                                 }
@@ -356,7 +359,7 @@ class RealmAllCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmAllCour
                         v.setBackgroundResource(R.drawable.ic_check_circle_black_24dp);
                     }
 
-
+                    notifyDataSetChanged();
                 }
                 else{
                     @SuppressWarnings("ConstantConditions") String courseCode=getData().get(getAdapterPosition()).getCourseCode();
