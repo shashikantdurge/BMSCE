@@ -10,8 +10,6 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.projects.psps.bmsce.R;
-import com.projects.psps.bmsce.syllabus.SAllCourseFragment;
-import com.projects.psps.bmsce.syllabus.SMyCourseFragment;
 
 /*
  Created by vasan on 22-07-2017.
@@ -67,11 +65,11 @@ public class SyllabusFragment extends Fragment {
         public Fragment getItem(int position) {
             switch (position) {
                 /*case 0: // Fragment # 0 - This will show FirstFragment
-                    return new SPortionFragment();*/
+                    return new PortionFragment();*/
                 case 0: // Fragment # 0 - This will show FirstFragment different title
-                    return new SMyCourseFragment();
+                    return new MyCourseFragment();
                 case 1:
-                    return new SAllCourseFragment();
+                    return new AllCourseFragment();
                 default:
                     return null;
             }

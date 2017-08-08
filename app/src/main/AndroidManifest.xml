@@ -22,6 +22,8 @@
             </intent-filter>
         </activity>
         <activity android:name=".syllabus.SyllabusViewActivity"/>
+        <service android:enabled="true" android:name=".firebase.SyllabusIService"/>
+        <receiver android:name=".syllabus.DownloadBroadcast"/>
     </application>
 
 </manifest>

@@ -28,6 +28,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="OOMD"
+                android:textIsSelectable="true"
                 android:textSize="18sp"
                 android:typeface="serif" />
 
@@ -36,6 +37,7 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:text="15CS4CSGH"
+                android:textIsSelectable="true"
                 android:typeface="monospace" />
             <TableLayout
                 android:layout_width="match_parent"
@@ -90,6 +92,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:fontFamily="serif"
-            android:textIsSelectable="true" />
+            android:textIsSelectable="true"
+            android:textSize="@dimen/text_size"/>
     </ScrollView>
 </android.support.constraint.ConstraintLayout>

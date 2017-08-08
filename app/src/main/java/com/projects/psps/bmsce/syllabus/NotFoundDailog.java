@@ -71,12 +71,13 @@ public class NotFoundDailog extends DialogFragment implements View.OnClickListen
     public void onClick(View v) {
         switch (v.getId()){
             case R.id.btn_cancel:
-                dismiss();
+                this.dismiss();
                 break;
             case R.id.btn_mail:
                 Toast.makeText(getContext(), "naale maadam", Toast.LENGTH_SHORT).show();
-                Intent intent=new Intent(Intent.ACTION_SEND, Uri.fromParts("mailto",getString(R.string.mail_address),null));
+                Intent intent=new Intent(Intent.ACTION_SENDTO);
                 intent.setType("text/html");
+                intent.setData(Uri.parse("mailto:"+getString(R.string.mail_address)));
                 intent.putExtra(Intent.EXTRA_SUBJECT,branch+" "+sem);
                 startActivity(Intent.createChooser(intent,"Send Email"));
         }

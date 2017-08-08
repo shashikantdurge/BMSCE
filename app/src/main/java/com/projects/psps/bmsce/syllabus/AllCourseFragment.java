@@ -1,8 +1,11 @@
 package com.projects.psps.bmsce.syllabus;
 
 import android.annotation.SuppressLint;
+import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
+import android.graphics.drawable.AnimationDrawable;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.os.Bundle;
@@ -30,6 +33,7 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.projects.psps.bmsce.R;
+import com.projects.psps.bmsce.firebase.SyllabusIService;
 import com.projects.psps.bmsce.realm.BranchSemCourses;
 import com.projects.psps.bmsce.realm.Course;
 import com.projects.psps.bmsce.realm.MyCourses;
@@ -43,13 +47,15 @@ import io.realm.OrderedRealmCollection;
 import io.realm.Realm;
 import io.realm.RealmList;
 import io.realm.RealmRecyclerViewAdapter;
-import io.realm.RealmResults;
 
 /*
   Created by vasan on 22-07-2017.
  */
 
-public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+public class AllCourseFragment extends Fragment implements AdapterView.OnItemSelectedListener {
+    public static final String DOWNLOAD_STATUS="download.status";
+    public static final String COURSE_CODE="courseCode";
+    public static final String BROADCAST_ACTION="com.projects.psps.bmsce.syllabus.downloadbroadcast";
     private Spinner branchSpn;
     private Spinner semSpn;
     private RecyclerView respectiveCourseListRv;
@@ -60,9 +66,11 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
     private BranchSemCourses branchSemCourses;
     private final static String TAG = "ALL_COURSES";
     private ProgressBar progressBar;
+    DownloadBroadcast downloadBroadcast;
+    RealmAllCourseAdapter courseAdapter;
 
 
-    public SAllCourseFragment() {
+    public AllCourseFragment() {
         // Required empty public constructor
     }
 
@@ -82,7 +90,7 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
         progressBar = (ProgressBar) rootView.findViewById(R.id.progress_bar);
         respectiveCourseListRv.setLayoutManager(new LinearLayoutManager(getContext()));
         respectiveCourseListRv.addItemDecoration(new DividerItemDecoration(getContext(), LinearLayoutManager.VERTICAL));
-        RealmAllCourseAdapter courseAdapter = new RealmAllCourseAdapter(null, false);
+        courseAdapter = new RealmAllCourseAdapter(null, false);
         StickyHeaderDecoration decoration = new StickyHeaderDecoration(courseAdapter);
         respectiveCourseListRv.addItemDecoration(decoration, 1);
 
@@ -169,14 +177,18 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
             Log.d(TAG, "Database Reference" + databaseReference.toString());
             databaseReference.addListenerForSingleValueEvent(courseReader);
         } else {
-            RealmAllCourseAdapter courseAdapter = new RealmAllCourseAdapter(branchSemCourses.getCourses().sort("courseType"), false);
-            progressBar.setVisibility(View.GONE);
-            Log.d(TAG, "Realm course " + branchSemCourses.getBranchSem());
-            respectiveCourseListRv.setAdapter(courseAdapter);
+            setAdapter();
         }
 
     }
 
+    void setAdapter(){
+        courseAdapter = new RealmAllCourseAdapter(branchSemCourses.getCourses().sort("courseType"), false);
+        progressBar.setVisibility(View.GONE);
+        Log.d(TAG, "Realm course " + branchSemCourses.getBranchSem());
+        respectiveCourseListRv.setAdapter(courseAdapter);
+
+    }
 
     private final ValueEventListener courseReader = new ValueEventListener() {
         @Override
@@ -230,9 +242,7 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
                     branchSemCourses = realm.copyToRealmOrUpdate(branchSemCourses);
                 }
             });
-            RealmAllCourseAdapter courseAdapter = new RealmAllCourseAdapter(branchSemCourses.getCourses().sort("courseType"), false);
-            progressBar.setVisibility(View.GONE);
-            respectiveCourseListRv.setAdapter(courseAdapter);
+            setAdapter();
 
 
         }
@@ -243,24 +253,76 @@ public class SAllCourseFragment extends Fragment implements AdapterView.OnItemSe
         }
     };
 
+    @Override
+    public void onPause() {
+        getContext().unregisterReceiver(downloadBroadcast);
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        IntentFilter filter=new IntentFilter(AllCourseFragment.BROADCAST_ACTION);
+        downloadBroadcast=new DownloadBroadcast();
+        getContext().registerReceiver(downloadBroadcast,filter);
+        super.onResume();
+    }
 
     @Override
     public void onStart() {
         super.onStart();
         Log.d(TAG, "onStart");
         try {
-            respectiveCourseListRv.getAdapter().notifyDataSetChanged();
+            courseAdapter.notifyDataSetChanged();
         } catch (NullPointerException e) {
             Log.d(TAG, "onStart" + e.getMessage());
         }
 
     }
 
+    public class DownloadBroadcast extends BroadcastReceiver {
+
+        @Override
+        public void onReceive(Context context, final Intent intent) {
+            //Toast.makeText(context, intent.getStringExtra(DOWNLOAD_STATUS), Toast.LENGTH_SHORT).show();
+            int i;
+            final Course course=Realm.getDefaultInstance().where(Course.class).equalTo("courseCode",intent.getStringExtra(COURSE_CODE)).findFirst();
+            switch (intent.getStringExtra(DOWNLOAD_STATUS)){
+                case "DOWNLOADED":
+                    Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
+                        @Override
+                        public void execute(Realm realm) {
+                            MyCourses myCourses=realm.where(MyCourses.class).findFirst();
+                            if(myCourses==null){
+                                myCourses=realm.createObject(MyCourses.class);
+                            }
+                            myCourses.addToMyCourses(course);
+                        }
+                    });
+                    Toast.makeText(context,"Downloaded\n"+ course.getCourseName(), Toast.LENGTH_SHORT).show();
+
+                    break;
+                case "STORAGE PERMISSION DENIED":
+                    Toast.makeText(context, "Please enable the Storage permission and try again.", Toast.LENGTH_SHORT).show();
+                    break;
+                case "DOES NOT EXIST":
+                    Toast.makeText(context,"Not Found"+ course.getCourseName(), Toast.LENGTH_SHORT).show();
+                    break;
+                default:
+                    Toast.makeText(context, "Something went wrong", Toast.LENGTH_SHORT).show();
+            }
+            if((i=intent.getIntExtra("position",-1))!=-1){
+                courseAdapter.notifyItemChanged(i);
+            }
+
+        }
+    }
+
+
 }
 class RealmAllCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmAllCourseAdapter.MyViewHolder> implements CourseHeaderAdapter<RealmAllCourseAdapter.HeaderHolder> {
         private int n;
         private static int[] courseTypeCount;
-        RealmList<Course> myCoursesList;
+        private RealmList<Course> myCoursesList;
         RealmAllCourseAdapter(@Nullable OrderedRealmCollection<Course> data, boolean autoUpdate) {
             super(data, autoUpdate);
             if(data==null){
@@ -293,10 +355,12 @@ class RealmAllCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmAllCour
                 holder.courseCode.setText(course.getCourseCode());
                 holder.totalCredits.setText(String.format(Locale.ENGLISH, "Credits %d", course.getTotalCredits()));
                 if(myCoursesList.contains(course)){
-                    holder.downloadImgBtn.setBackgroundResource(R.drawable.ic_check_circle_black_24dp);
+                    holder.downloadImgBtn.setBackgroundResource(R.drawable.anim_check_circle);
                     holder.downloadImgBtn.setClickable(false);
+                    AnimationDrawable animationDrawable=(AnimationDrawable)holder.downloadImgBtn.getBackground();
+                    animationDrawable.start();
                 }else{
-                    holder.downloadImgBtn.setBackgroundResource(R.drawable.ic_download);
+                    holder.downloadImgBtn.setBackgroundResource(R.drawable.ic_download_3);
                     holder.downloadImgBtn.setClickable(true);
                 }
 
@@ -329,17 +393,11 @@ class RealmAllCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmAllCour
                     final Course course=getItem(getAdapterPosition());
                     try{
                         if(v.isClickable()){
-                            Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
-                                @Override
-                                public void execute(Realm realm) {
-                                    MyCourses myCourses=realm.where(MyCourses.class).findFirst();
-                                    if(myCourses==null) {
-                                        myCourses = realm.createObject(MyCourses.class);
-                                    }
-                                    myCourses.getCourses().where().equalTo("courseCode",course.getCourseCode()).findAll().deleteAllFromRealm();
-                                    myCourses.addToMyCourses(course);
-                                }
-                            });
+
+                            Intent intent=new Intent(v.getContext(), SyllabusIService.class);
+                            intent.putExtra("position",getAdapterPosition());
+                            intent.putExtra("courseCode",course.getCourseCode());
+                            v.getContext().startService(intent);
                         }
                     }catch (NullPointerException e){
                         Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
@@ -356,10 +414,12 @@ class RealmAllCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmAllCour
                         Log.d("COURSE_ADAPTER"," Your first course is inserted");
                     }finally {
                         v.setClickable(false);
-                        v.setBackgroundResource(R.drawable.ic_check_circle_black_24dp);
+                        v.setBackgroundResource(R.drawable.anim_download);
+                        AnimationDrawable animationDrawable=(AnimationDrawable)v.getBackground();
+                        animationDrawable.start();
                     }
 
-                    notifyDataSetChanged();
+                   // notifyDataSetChanged();
                 }
                 else{
                     @SuppressWarnings("ConstantConditions") String courseCode=getData().get(getAdapterPosition()).getCourseCode();

@@ -1,7 +1,6 @@
 package com.projects.psps.bmsce.syllabus;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -42,6 +41,8 @@ import org.jsoup.nodes.Document;
 import java.io.File;
 import java.io.IOException;
 import java.security.Permission;
+import java.util.IllegalFormatException;
+import java.util.Objects;
 
 import io.realm.Realm;
 
@@ -229,7 +230,18 @@ public class SyllabusViewActivity extends AppCompatActivity implements MenuItem.
         }).addOnFailureListener(new OnFailureListener() {
             @Override
             public void onFailure(@NonNull Exception exception) {
-                Log.d(TAG, "Failed to download");
+                if(Objects.equals(exception.getLocalizedMessage(), "Object does not exist at location.")){
+                    try{
+                        NotFoundDailog notFoundDailog = NotFoundDailog.newInstance(course.getCourseName(),"");
+                        notFoundDailog.show(getSupportFragmentManager(),"not found");
+                        progressBar.setVisibility(View.GONE);
+                    }catch (IllegalStateException e){
+                        Log.e(TAG,e.getLocalizedMessage());
+                    }
+
+                }
+
+                Log.d(TAG,exception.getLocalizedMessage());
 
                 // Handle any errors
             }

@@ -7,7 +7,6 @@
 
     //SYLLABUS
     <string name="portion">Portion</string>
-    <!-- TODO: Remove or change this placeholder text -->
     <string name="credits">Credits %d</string>
 
     <string-array name="branch">

@@ -39,7 +39,7 @@ import io.realm.RealmResults;
  Created by vasan on 24-07-2017.
  */
 
-public class SMyCourseFragment extends Fragment {
+public class MyCourseFragment extends Fragment {
     private MyCourses myCourses;
     private final static  String TAG="MY_COURSES";
     private List<String> selectedCourses =new ArrayList<>(0);
@@ -47,7 +47,7 @@ public class SMyCourseFragment extends Fragment {
     RecyclerView recyclerView;
 
 
-    SMyCourseFragment(){
+    MyCourseFragment(){
         //Empty Constructor
     }
 
@@ -73,7 +73,7 @@ public class SMyCourseFragment extends Fragment {
         /*if(myCourses!=null)
             recyclerView.setAdapter(new RealmAllCourseAdapter(myCourses.getCourses(),true));*/
         try {
-            recyclerView.setAdapter(new RealmMyCourseAdapter(myCourses.getCourses()));
+            recyclerView.setAdapter(new RealmMyCourseAdapter(myCourses.getCourses().where().distinct("courseCode")));
         }catch (NullPointerException e){
             Realm.getDefaultInstance().executeTransaction(new Realm.Transaction() {
                 @Override
@@ -145,7 +145,7 @@ public class SMyCourseFragment extends Fragment {
 
 
     class RealmMyCourseAdapter extends RealmRecyclerViewAdapter<Course,RealmMyCourseAdapter.MyViewHolder> {
-
+        ActionMode actionMode;
         RealmMyCourseAdapter(@Nullable OrderedRealmCollection<Course> data) {
             super(data, true);
         }
@@ -173,7 +173,7 @@ public class SMyCourseFragment extends Fragment {
 
 
         class MyViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener ,AdapterView.OnLongClickListener{
-            private ActionMode actionMode;
+
             final TextView courseName;
             final TextView courseCode;
             final TextView totalCredits;
@@ -196,7 +196,7 @@ public class SMyCourseFragment extends Fragment {
                     if(selectedCourses.contains(courseCode)){
                         v.setBackgroundColor(Color.argb(51,240,238,238));           //Not selected
                         selectedCourses.remove(courseCode);
-                        if(selectedCourses.isEmpty())
+                        if(selectedCourses.isEmpty() && actionMode!=null)
                             actionMode.finish();
 
                     }else {

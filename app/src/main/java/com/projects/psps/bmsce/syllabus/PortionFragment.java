@@ -13,9 +13,9 @@ import com.projects.psps.bmsce.R;
  Created by vasan on 22-07-2017.
  */
 
-public class SPortionFragment extends Fragment {
+public class PortionFragment extends Fragment {
 
-    public SPortionFragment(){
+    public PortionFragment(){
         //Should be empty
     }
     @Override
